@@ -1,5 +1,4 @@
-import * as _ from 'lodash';
-
+const _ = Npm.require('underscrore');
 const path = Plugin.path;
 const fs = Plugin.fs;
 const sass = Npm.require('node-sass');
@@ -7,7 +6,6 @@ const Future = Npm.require('fibers/future');
 const files = Plugin.files;
 
 let _includePaths;
-
 
 Plugin.registerCompiler({
   extensions: ['scss', 'sass'],
@@ -171,12 +169,20 @@ class SassCompiler extends MultiFileCachingCompiler {
         }
 
         if (parsed.absolute) {
-          sourceMapPaths.push(parsed.path);
-          done({ contents: fs.readFileSync(parsed.path, 'utf8')});
+          sourceMapPaths.push(parsed.path);          
+          if (parsed.path.indexOf('.scss') > -1) {
+            done({ contents: fs.readFileSync(parsed.path, 'utf8') });
+          } else {
+            done({ file: parsed.path });
+          }          
         }else{
           referencedImportPaths.push(parsed.path);
           sourceMapPaths.push(decodeFilePath(parsed.path));
-          done({ contents: allFiles.get(parsed.path).getContentsAsString()});
+          if (parsed.path.indexOf('.scss') > -1) {
+            done({ contents: allFiles.get(parsed.path).getContentsAsString()});
+          } else {
+            done({ file: path.resolve('./' + decodeFilePath(parsed.path)) });
+          }
         }
       }catch(e){
         return done(e);
@@ -208,7 +214,7 @@ class SassCompiler extends MultiFileCachingCompiler {
     // In that case options.file will be used by node-sass,
     // which it can not read since it will contain a meteor package or app reference '{}'
     // This is one workaround, another one would be to not set options.file, in which case the importer 'prev' will be 'stdin'
-    // However, this would result in problems if a file named stdín.scss would exist.
+    // However, this would result in problems if a file named stdÃ­n.scss would exist.
     // Not the most elegant of solutions, but it works.
     if(!options.data.trim()){
       options.data = "$fakevariable : blue;"
