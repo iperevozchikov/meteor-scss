@@ -1,4 +1,4 @@
-const _ = Npm.require('underscrore');
+const _ = Npm.require('underscore');
 const path = Plugin.path;
 const fs = Plugin.fs;
 const sass = Npm.require('node-sass');
